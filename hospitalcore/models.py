@@ -16,6 +16,8 @@ class UserModel(models.Model):
 class DoctorModel(models.Model):
     doc_id = models.CharField(max_length=20)
     doc_name = models.CharField(max_length=250)
+    doc_email = models.EmailField()
+    password = models.CharField(max_length=100)
     category = models.CharField(max_length=250)
     phone = models.CharField(max_length=13)
 
@@ -58,3 +60,17 @@ class MedNews(models.Model):
 
     def __str__(self):
         return self.headline
+    
+class Appointment(models.Model):
+    ap_id = models.CharField(max_length=20)
+    doctor = models.OneToOneField(DoctorModel,on_delete=models.CASCADE)
+    date = models.DateField(auto_now=True)
+    disease = models.CharField(max_length=150)
+    description = models.CharField(max_length=1500)
+    first_name = models.CharField(max_length=150)
+    last_name = models.CharField(max_length=150)
+    mid_name = models.CharField(max_length=150)
+    phone = models.CharField(max_length=13)
+
+    def __str__(self):
+        return self.ap_id

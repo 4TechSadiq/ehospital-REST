@@ -17,6 +17,7 @@ class DoctorModel(models.Model):
     doc_id = models.CharField(max_length=20)
     doc_name = models.CharField(max_length=250)
     doc_email = models.EmailField()
+    hospital = models.CharField(max_length=250)
     password = models.CharField(max_length=100)
     category = models.CharField(max_length=250)
     phone = models.CharField(max_length=13)
@@ -74,3 +75,16 @@ class Appointment(models.Model):
 
     def __str__(self):
         return self.ap_id
+    
+class MedRecord(models.Model):
+    ap_id = models.OneToOneField(Appointment,on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return self.ap_id
+    
+class Prescription(models.Model):
+    ap_id = models.OneToOneField(Appointment,on_delete=models.CASCADE)
+    user = models.OneToOneField(UserModel,on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return self.user_id

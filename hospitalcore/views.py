@@ -83,6 +83,10 @@ class DetailAppointment(generics.RetrieveUpdateDestroyAPIView):
     queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializer
 
+class RemoveAppointment(generics.DestroyAPIView):
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
+
 class CreateAppointment(generics.CreateAPIView):
     queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializer

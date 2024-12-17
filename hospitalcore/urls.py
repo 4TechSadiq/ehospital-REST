@@ -15,4 +15,5 @@ urlpatterns = [
     path("med-news/<int:pk>", views.MedNewsDetail.as_view(), name="med-news-detail"),
     path("create-appointment", views.CreateAppointment.as_view(), name="list-med-news"),
     path("list-appointment", views.ListAppointment.as_view(), name="create-appointment"),
+    path("remove-appointment/<int:pk>", views.RemoveAppointment.as_view(), name="remove-appointment"),
 ]

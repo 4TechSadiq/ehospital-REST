@@ -2,6 +2,10 @@ from django.shortcuts import render
 from rest_framework import generics
 from .models import UserModel, DoctorModel, HeathStatus, MedNews, Appointment, MedRecord, Prescription, MedicalHistory
 from .serializers import UserSerializer, DoctorSerializer, HeathStatusSerializer, MedNewsSerializer, AppointmentSerializer, MedRecordSerializer, PrescriptionSerializer, MedHistorySerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .modules.user_id import generate_e_hosp_id
 # Create your views here.
 
 
@@ -9,6 +13,24 @@ from .serializers import UserSerializer, DoctorSerializer, HeathStatusSerializer
 class UserList(generics.ListCreateAPIView):
     queryset = UserModel.objects.all()
     serializer_class = UserSerializer
+
+    def post(self, request, *args, **kwargs):
+        print("Incoming request data:", request.data)  # Log request payload for debugging
+        data = request.data
+        data['user_id'] = generate_e_hosp_id()
+        print(data)
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            print("Serializer validated data:", serializer.validated_data)  # Log validated data
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            print("Serializer errors:", serializer.errors)  # Log errors if validation fails
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# class CreateUser(APIView):
+#     def post(self, request, *args, **kwargs):
+#         print(request.data)
 
 class ListUser(generics.ListAPIView):
     queryset = UserModel.objects.all()
@@ -21,6 +43,11 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
 class CreateUser(generics.CreateAPIView):
     queryset = UserModel.objects.all()
     serializer_class = UserSerializer
+
+class DeleteUser(generics.DestroyAPIView):
+    queryset = UserModel.objects.all()
+    serializer_class = UserSerializer
+
 
 # Doctor Views
 class DoctorList(generics.ListCreateAPIView):

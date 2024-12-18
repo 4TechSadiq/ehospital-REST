@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .modules.user_id import generate_e_hosp_id
+from .modules.image_url import get_url
 # Create your views here.
 
 
@@ -16,10 +17,19 @@ class UserList(generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         print("Incoming request data:", request.data)  # Log request payload for debugging
-        data = request.data
+        data = request.data.dict()  # Convert QueryDict to a mutable dictionary
         data['user_id'] = generate_e_hosp_id()
-        print(data)
-        serializer = self.get_serializer(data=request.data)
+        print("Generated user_id:", data['user_id'])
+        
+        # Handle profile upload
+        if 'profile' in request.FILES:
+            profile_file = request.FILES['profile']
+            data['profile'] = get_url(profile_file)  # Upload the file and get its URL
+        else:
+            print("No profile file found in request.FILES")
+            data['profile'] = None  # Or handle this case as required
+        
+        serializer = self.get_serializer(data=data)
         if serializer.is_valid():
             print("Serializer validated data:", serializer.validated_data)  # Log validated data
             self.perform_create(serializer)

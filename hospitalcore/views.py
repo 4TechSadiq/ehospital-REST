@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
-from .models import UserModel, DoctorModel, HeathStatus, MedNews, Appointment, MedRecord, Prescription, MedicalHistory
-from .serializers import UserSerializer, DoctorSerializer, HeathStatusSerializer, MedNewsSerializer, AppointmentSerializer, MedRecordSerializer, PrescriptionSerializer, MedHistorySerializer
+from .models import UserModel, DoctorModel, HeathStatus, MedNews, Appointment, MedRecord, Prescription, MedicalHistory, TreatmentHistory, MedicalCondition
+from .serializers import UserSerializer, DoctorSerializer, HeathStatusSerializer, MedNewsSerializer, AppointmentSerializer, MedRecordSerializer, PrescriptionSerializer, MedHistorySerializer, TreatmentHistorySerializer, MedicalConditionSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -46,8 +46,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from .models import UserModel
-from .serializers import UserSerializer
+
 
 class LoginUser(APIView):
     def post(self, request):
@@ -148,3 +147,18 @@ class CreateAppointment(generics.CreateAPIView):
     queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializer
 
+class CreateTreatment(generics.CreateAPIView):
+    queryset = TreatmentHistory.objects.all()
+    serializer_class = TreatmentHistorySerializer
+
+class ListTreatment(generics.ListCreateAPIView):
+    queryset = TreatmentHistory.objects.all()
+    serializer_class = MedRecordSerializer
+
+class CreateMedicalCondition(generics.CreateAPIView):
+    queryset = MedicalCondition.objects.all()
+    serializer_class = MedicalConditionSerializer
+
+class ListMedicalCondition(generics.ListCreateAPIView):
+    queryset = MedicalCondition.objects.all()
+    serializer_class = MedicalConditionSerializer

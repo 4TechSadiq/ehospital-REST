@@ -5,7 +5,8 @@ urlpatterns = [
     path("create-user/", views.UserList.as_view(), name="create-user"),
     path("user/<int:pk>", views.UserDetail.as_view(), name="user-detail"),
     path("delete-user/<int:pk>", views.DeleteUser.as_view(), name="delete-user"),
-    path('login-user/', views.LoginUser.as_view(), name='login-user'),   path("create-doctor", views.DoctorList.as_view(), name="create-doctor"),
+    path('login-user/', views.LoginUser.as_view(), name='login-user'),   
+    path("create-doctor", views.DoctorList.as_view(), name="create-doctor"),
     path("doctor/<int:pk>", views.DoctorDetail.as_view(), name="doctor-detail"),
     path("create-med-history", views.MedHistoryList.as_view(), name="create-med-history"),
     path("med-history/<int:pk>", views.MedHistoryDetail.as_view(), name="med-history-detail"),
@@ -16,4 +17,8 @@ urlpatterns = [
     path("create-appointment", views.CreateAppointment.as_view(), name="list-med-news"),
     path("list-appointment", views.ListAppointment.as_view(), name="create-appointment"),
     path("remove-appointment/<int:pk>", views.RemoveAppointment.as_view(), name="remove-appointment"),
+    path("create-treatment-history", views.CreateTreatment.as_view(), name="create-treatment"),
+    path("list-treatment-history", views.ListTreatment.as_view(), name="list-treatment"),
+    path("create-med-condition", views.CreateMedicalCondition.as_view(), name="create-med-condition"),
+    path("list-med-condition", views.ListMedicalCondition.as_view(), name="list-med-condition"),
 ]

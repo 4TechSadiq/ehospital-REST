@@ -73,6 +73,7 @@ class MedNews(models.Model):
 
 class Appointment(models.Model):
     ap_id = models.CharField(max_length=20)
+    user_id = models.CharField(max_length=50, null=True)
     doc_id = models.CharField(max_length=50, null=True)
     date = models.DateField(auto_now=True)
     email = models.EmailField(null=True)

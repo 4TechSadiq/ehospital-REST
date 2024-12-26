@@ -83,6 +83,10 @@ class DoctorList(generics.ListCreateAPIView):
     queryset = DoctorModel.objects.all()
     serializer_class = DoctorSerializer
 
+class ListDoctor(generics.ListAPIView):
+    queryset = DoctorModel.objects.all()
+    serializer_class = DoctorSerializer
+
 class DoctorDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = DoctorModel.objects.all()
     serializer_class = DoctorSerializer
@@ -142,10 +146,18 @@ class DetailAppointment(generics.RetrieveUpdateDestroyAPIView):
 class RemoveAppointment(generics.DestroyAPIView):
     queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializer
-
 class CreateAppointment(generics.CreateAPIView):
     queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializer
+
+    def post(self, request, *args, **kwargs):
+        print("Incoming request data:", request.data)
+        
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CreateTreatment(generics.CreateAPIView):
     queryset = TreatmentHistory.objects.all()

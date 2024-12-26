@@ -73,14 +73,24 @@ class MedNews(models.Model):
 
 class Appointment(models.Model):
     ap_id = models.CharField(max_length=20)
-    doctor = models.OneToOneField(DoctorModel, on_delete=models.CASCADE)
+    doc_id = models.CharField(max_length=50, null=True)
     date = models.DateField(auto_now=True)
+    email = models.EmailField(null=True)
     disease = models.CharField(max_length=150)
     description = models.CharField(max_length=1500)
     first_name = models.CharField(max_length=150)
     last_name = models.CharField(max_length=150)
     mid_name = models.CharField(max_length=150)
     phone = models.CharField(max_length=13)
+
+
+    def save(self, *args, **kwargs):
+        if not self.ap_id:
+            last_appointment = Appointment.objects.order_by('-id').first()
+            new_id = f"AP-{(last_appointment.id if last_appointment else 0) + 1:04}"
+            self.ap_id = new_id
+        super().save(*args, **kwargs)
+
 
     def __str__(self):
         return self.ap_id

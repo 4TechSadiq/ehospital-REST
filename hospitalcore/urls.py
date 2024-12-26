@@ -7,6 +7,7 @@ urlpatterns = [
     path("delete-user/<int:pk>", views.DeleteUser.as_view(), name="delete-user"),
     path('login-user/', views.LoginUser.as_view(), name='login-user'),   
     path("create-doctor", views.DoctorList.as_view(), name="create-doctor"),
+    path("list-doctor", views.ListDoctor.as_view(), name="list-doctor"),
     path("doctor/<int:pk>", views.DoctorDetail.as_view(), name="doctor-detail"),
     path("create-med-history", views.MedHistoryList.as_view(), name="create-med-history"),
     path("med-history/<int:pk>", views.MedHistoryDetail.as_view(), name="med-history-detail"),

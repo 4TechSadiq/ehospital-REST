@@ -6,37 +6,6 @@ class Doctor(models.Model):
     def __str__(self):
         return self.name
 
-class MedicalCondition(models.Model):
-    CONDITION_SEVERITY = [
-        ('Mild', 'Mild'),
-        ('Moderate', 'Moderate'),
-        ('Severe', 'Severe'),
-    ]
-
-    STATUS_CHOICES = [
-        ('Under Treatment', 'Under Treatment'),
-        ('Ongoing', 'Ongoing'),
-        ('Stable', 'Stable'),
-        ('Resolved', 'Resolved'),
-    ]
-
-    condition = models.CharField(max_length=100)
-    severity = models.CharField(max_length=20, choices=CONDITION_SEVERITY)
-    medication = models.CharField(max_length=100)
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="conditions")
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES)
-
-    def __str__(self):
-        return self.condition
-
-class TreatmentHistory(models.Model):
-    medical_condition = models.ForeignKey(MedicalCondition, on_delete=models.CASCADE, related_name="history")
-    date = models.DateField()
-    remarks = models.TextField()
-    outcome = models.CharField(max_length=100)
-
-    def __str__(self):
-        return f"{self.medical_condition.condition} - {self.date}"
 
 class UserModel(models.Model):
     user_id = models.CharField(max_length=20)
@@ -56,8 +25,8 @@ class DoctorModel(models.Model):
     doc_id = models.CharField(max_length=20)
     doc_name = models.CharField(max_length=250)
     doc_email = models.EmailField()
-    #add profile
-    #add experiance
+    profile = models.CharField(max_length=1500)
+    experiance = models.CharField(max_length=250)
     hospital = models.CharField(max_length=250)
     password = models.CharField(max_length=100)
     category = models.CharField(max_length=250)
@@ -128,3 +97,37 @@ class Prescription(models.Model):
 
     def __str__(self):
         return self.user_id
+
+
+
+class MedicalCondition(models.Model):
+    CONDITION_SEVERITY = [
+        ('Mild', 'Mild'),
+        ('Moderate', 'Moderate'),
+        ('Severe', 'Severe'),
+    ]
+
+    STATUS_CHOICES = [
+        ('Under Treatment', 'Under Treatment'),
+        ('Ongoing', 'Ongoing'),
+        ('Stable', 'Stable'),
+        ('Resolved', 'Resolved'),
+    ]
+
+    condition = models.CharField(max_length=100)
+    severity = models.CharField(max_length=20, choices=CONDITION_SEVERITY)
+    medication = models.CharField(max_length=100)
+    doctor = models.ForeignKey(DoctorModel, on_delete=models.CASCADE, related_name="conditions")
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES)
+
+    def __str__(self):
+        return self.condition
+
+class TreatmentHistory(models.Model):
+    medical_condition = models.ForeignKey(MedicalCondition, on_delete=models.CASCADE, related_name="history")
+    date = models.DateField()
+    remarks = models.TextField()
+    outcome = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.medical_condition.condition} - {self.date}"

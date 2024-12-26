@@ -153,12 +153,12 @@ class CreateTreatment(generics.CreateAPIView):
 
 class ListTreatment(generics.ListCreateAPIView):
     queryset = TreatmentHistory.objects.all()
-    serializer_class = MedRecordSerializer
+    serializer_class = TreatmentHistorySerializer
 
 class CreateMedicalCondition(generics.CreateAPIView):
     queryset = MedicalCondition.objects.all()
     serializer_class = MedicalConditionSerializer
 
-class ListMedicalCondition(generics.ListCreateAPIView):
+class ListMedicalCondition(generics.ListAPIView):
     queryset = MedicalCondition.objects.all()
     serializer_class = MedicalConditionSerializer

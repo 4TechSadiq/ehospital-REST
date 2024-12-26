@@ -20,7 +20,7 @@ class MedHistorySerializer(serializers.ModelSerializer):
 class TreatmentHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = TreatmentHistory
-        fields = ['date', 'remarks', 'outcome']
+        fields = "__all__"
 
 class MedicalHistorySerializer(serializers.ModelSerializer):
     history = TreatmentHistorySerializer(many=True, source='history', read_only=True)
@@ -32,7 +32,7 @@ class MedicalHistorySerializer(serializers.ModelSerializer):
 class MedicalConditionSerializer(serializers.ModelSerializer):
     class Meta:
         model = MedicalCondition
-        fields = ['condition', 'severity', 'medication', 'status', 'remark', 'outcome']
+        fields = '__all__'
 
 
 class HeathStatusSerializer(serializers.ModelSerializer):

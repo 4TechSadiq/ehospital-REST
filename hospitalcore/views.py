@@ -7,8 +7,93 @@ from rest_framework.response import Response
 from rest_framework import status
 from .modules.user_id import generate_e_hosp_id
 from .modules.image_url import get_url
-# Create your views here.
+import stripe
+from django.conf import settings
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import math as Math
 
+# Make sure to set your Stripe secret key
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+class CreatePaymentIntentView(APIView):
+    def post(self, request):
+        print("Received data:", request.data)
+        try:
+            amount = request.data.get('amount')
+            intent = stripe.PaymentIntent.create(
+                amount=amount,
+                currency='usd',
+                automatic_payment_methods={'enabled': True},
+            )
+            return Response({
+                'clientSecret': intent.client_secret
+            })
+        except Exception as e:
+            return Response({
+                'error': str(e)
+            }, status=400)
+
+class CreateAppointmentView(APIView):
+    def post(self, request):
+        try:
+            # Verify payment with Stripe
+            print("Received data:", request.data)
+            payment_intent_id = request.data.get('payment_intent_id')
+            payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
+            
+            if payment_intent.status != 'succeeded':
+                return Response({
+                    'error': 'Payment not completed'
+                }, status=400)
+
+            # Create appointment
+            appointment = Appointment.objects.create(
+                first_name=request.data.get('first_name'),
+                mid_name=request.data.get('mid_name'),
+                last_name=request.data.get('last_name'),
+                phone=request.data.get('phone'),
+                email=request.data.get('email'),
+                disease=request.data.get('disease'),
+                description=request.data.get('description'),
+                doc_id=request.data.get('doc_id'),
+                user_id=request.data.get('user_id'),
+                payment_intent_id=payment_intent_id,
+                payment_status='completed'
+            )
+
+            return Response({
+                'message': 'Appointment created successfully',
+                'ap_id': appointment.ap_id
+            })
+        except Exception as e:
+            return Response({
+                'error': str(e)
+            }, status=400)
+
+class AppointmentView(APIView):
+    def post(self, request):
+        print("Received data:", request.data)
+        serializer = AppointmentSerializer(data=request.data)
+        if serializer.is_valid():
+            # Verify payment with Stripe
+            try:
+                payment_intent = stripe.PaymentIntent.retrieve(
+                    request.data['payment_intent_id']
+                )
+                if payment_intent.status == 'succeeded':
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+                else:
+                    return Response({
+                        'error': 'Payment not completed'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+            except stripe.error.StripeError as e:
+                return Response({
+                    'error': str(e)
+                }, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
 # User Views
 class UserList(generics.ListCreateAPIView):

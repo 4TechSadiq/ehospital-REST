@@ -22,4 +22,7 @@ urlpatterns = [
     path("list-treatment-history", views.ListTreatment.as_view(), name="list-treatment"),
     path("create-med-condition", views.CreateMedicalCondition.as_view(), name="create-med-condition"),
     path("list-med-condition", views.ListMedicalCondition.as_view(), name="list-med-condition"),
+    path('create-payment-intent/', views.CreatePaymentIntentView.as_view()),
+    path('appointments/', views.AppointmentView.as_view()),
+    path('pay-appointment/', views.CreateAppointmentView.as_view(),name='pay-appointment'),
 ]

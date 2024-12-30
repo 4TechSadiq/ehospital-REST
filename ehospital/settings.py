@@ -130,6 +130,11 @@ USE_I18N = True
 
 USE_TZ = True
 
+# settings.py
+STRIPE_PUBLIC_KEY = 'pk_test_51Pm9dW09RSNCkCeLWAesCmdAteNtE48mUXSJWTa2BF2l9JNoW45VKHFOn6b0a5716ode7LcOwvyYpXxPXdbZSQHf00Fqviu3nY'
+STRIPE_SECRET_KEY = 'sk_test_51Pm9dW09RSNCkCeLOJ3s8s5IfEAVRqFnOvxbGsracNfvMnMGe14UFKwW6Y7ZZAuH88zmW85nQmVy7DM2hs2HLx3E009VCCc12t'
+
+CORS_ALLOW_CREDENTIALS = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/

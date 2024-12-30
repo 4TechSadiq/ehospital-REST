@@ -31,6 +31,7 @@ class DoctorModel(models.Model):
     password = models.CharField(max_length=100)
     category = models.CharField(max_length=250)
     phone = models.CharField(max_length=13)
+    price = models.FloatField()
 
     def __str__(self):
         return self.doc_id
@@ -83,7 +84,8 @@ class Appointment(models.Model):
     last_name = models.CharField(max_length=150)
     mid_name = models.CharField(max_length=150)
     phone = models.CharField(max_length=13)
-
+    payment_intent_id = models.CharField(max_length=100, null=True)
+    payment_status = models.CharField(max_length=50, null=True)
 
     def save(self, *args, **kwargs):
         if not self.ap_id:

@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
-from .models import UserModel, DoctorModel, HeathStatus, MedNews, Appointment, MedRecord, Prescription, MedicalHistory, TreatmentHistory, MedicalCondition
-from .serializers import UserSerializer, DoctorSerializer, HeathStatusSerializer, MedNewsSerializer, AppointmentSerializer, MedRecordSerializer, PrescriptionSerializer, MedHistorySerializer, TreatmentHistorySerializer, MedicalConditionSerializer
+from .models import UserModel, DoctorModel, HeathStatus, MedNews, Appointment, MedRecord, Prescription, MedicalHistory, TreatmentHistory, MedicalCondition,Medicine
+from .serializers import UserSerializer, DoctorSerializer, HeathStatusSerializer, MedNewsSerializer, AppointmentSerializer, MedRecordSerializer, PrescriptionSerializer, MedHistorySerializer, TreatmentHistorySerializer, MedicalConditionSerializer,MedicineSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -122,6 +122,10 @@ class UserList(generics.ListCreateAPIView):
         else:
             print("Serializer errors:", serializer.errors)  # Log errors if validation fails
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ListUsers(generics.ListAPIView):
+    queryset = UserModel.objects.all()
+    serializer_class = UserSerializer
 
 # class CreateUser(APIView):
 #     def post(self, request, *args, **kwargs):
@@ -259,3 +263,20 @@ class CreateMedicalCondition(generics.CreateAPIView):
 class ListMedicalCondition(generics.ListAPIView):
     queryset = MedicalCondition.objects.all()
     serializer_class = MedicalConditionSerializer
+
+
+class CreateMedicine(generics.CreateAPIView):
+    queryset = Medicine.objects.all()
+    serializer_class = MedicineSerializer
+
+class ListMedicine(generics.ListAPIView):
+    queryset = Medicine.objects.all()
+    serializer_class = MedicineSerializer
+
+class CreatePrescription(generics.CreateAPIView):
+    queryset = Prescription.objects.all()
+    serializer_class = PrescriptionSerializer
+
+class ListPrescription(generics.ListAPIView):
+    queryset = Prescription.objects.all()
+    serializer_class = PrescriptionSerializer

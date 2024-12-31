@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path("create-user/", views.UserList.as_view(), name="create-user"),
+    path("list-user", views.ListUsers.as_view(), name="list-user"),
     path("user/<int:pk>", views.UserDetail.as_view(), name="user-detail"),
     path("delete-user/<int:pk>", views.DeleteUser.as_view(), name="delete-user"),
     path('login-user/', views.LoginUser.as_view(), name='login-user'),   
@@ -25,4 +26,8 @@ urlpatterns = [
     path('create-payment-intent/', views.CreatePaymentIntentView.as_view()),
     path('appointments/', views.AppointmentView.as_view()),
     path('pay-appointment/', views.CreateAppointmentView.as_view(),name='pay-appointment'),
+    path("create-medicine", views.CreateMedicine.as_view(), name="create-medicine"),
+    path("list-medicine", views.ListMedicine.as_view(), name="list-medicine"),
+    path("create-prescription", views.CreatePrescription.as_view(), name="create-prescription"),
+    path("list-prescription", views.ListPrescription.as_view(), name="list-prescription"),
 ]

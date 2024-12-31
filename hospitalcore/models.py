@@ -104,43 +104,46 @@ class MedRecord(models.Model):
     def __str__(self):
         return self.ap_id
 
-class Prescription(models.Model):
-    ap_id = models.OneToOneField(Appointment, on_delete=models.CASCADE)
-    user = models.OneToOneField(UserModel, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.user_id
-
-
 
 class MedicalCondition(models.Model):
-    CONDITION_SEVERITY = [
-        ('Mild', 'Mild'),
-        ('Moderate', 'Moderate'),
-        ('Severe', 'Severe'),
-    ]
-
-    STATUS_CHOICES = [
-        ('Under Treatment', 'Under Treatment'),
-        ('Ongoing', 'Ongoing'),
-        ('Stable', 'Stable'),
-        ('Resolved', 'Resolved'),
-    ]
-
+    user = models.CharField(max_length=100)
     condition = models.CharField(max_length=100)
-    severity = models.CharField(max_length=20, choices=CONDITION_SEVERITY)
+    severity = models.CharField(max_length=520)
     medication = models.CharField(max_length=100)
-    doctor = models.ForeignKey(DoctorModel, on_delete=models.CASCADE, related_name="conditions")
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES)
+    doctor = models.CharField(max_length=100)
+    status = models.CharField(max_length=500)
 
     def __str__(self):
         return self.condition
 
+
 class TreatmentHistory(models.Model):
-    medical_condition = models.ForeignKey(MedicalCondition, on_delete=models.CASCADE, related_name="history")
-    date = models.DateField()
+    user = models.CharField(max_length=100)
+    medical_condition = models.CharField(max_length=500)
+    date = models.DateField(auto_now=True)
     remarks = models.TextField()
     outcome = models.CharField(max_length=100)
 
     def __str__(self):
         return f"{self.medical_condition.condition} - {self.date}"
+
+
+class Medicine(models.Model):
+    name = models.CharField(max_length=100)
+    dosage_options = models.CharField(max_length=200)  # Example: "50mg, 100mg, 200mg"
+    description = models.TextField(null=True, blank=True)
+    side_effects = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Prescription(models.Model):
+    patient = models.ForeignKey(UserModel, on_delete=models.CASCADE)
+    medicines = models.ManyToManyField(Medicine)  # Allows multiple medicines
+    dosage = models.CharField(max_length=100)
+    times_per_day = models.IntegerField()
+    routine = models.CharField(max_length=10)  # Before or After
+
+    def __str__(self):
+        return f"Prescription for {self.patient}"

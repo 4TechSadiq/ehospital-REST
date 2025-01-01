@@ -273,10 +273,19 @@ class ListMedicine(generics.ListAPIView):
     queryset = Medicine.objects.all()
     serializer_class = MedicineSerializer
 
+
 class CreatePrescription(generics.CreateAPIView):
     queryset = Prescription.objects.all()
     serializer_class = PrescriptionSerializer
 
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        print("Incoming request data:", request.data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 class ListPrescription(generics.ListAPIView):
     queryset = Prescription.objects.all()
     serializer_class = PrescriptionSerializer

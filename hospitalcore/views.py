@@ -211,11 +211,41 @@ class CreateHeathStatus(generics.CreateAPIView):
     serializer_class = HeathStatusSerializer
 
 # Med News Views
+from collections import defaultdict
+
 class MedNewsList(generics.ListCreateAPIView):
     queryset = MedNews.objects.all()
     serializer_class = MedNewsSerializer
 
-class MedNewsDetail(generics.RetrieveUpdateDestroyAPIView):
+    def post(self, request, *args, **kwargs):
+        # Create a dictionary for non-file fields
+        data = {key: value[0] for key, value in request.data.items() if key != 'image'}
+        print("Non-file Data:", data)  # Debugging: Check the non-file data
+
+        # Retrieve the uploaded image from request.FILES
+        image = request.FILES.get('image')
+        print("Image:", image)  # Debugging: Check if the image is being retrieved
+
+        if image:
+            # Process the image URL if needed (e.g., upload to Cloudinary)
+            image_url = get_url(image)  # Assuming get_url is a function to process the image
+            data['image'] = image_url  # Add the image URL to the data dictionary
+            print("Updated Data with Image:", data)  # Debugging: Check the final data
+
+        # Create the MedNews instance using the data
+        # Make sure to call `create` with the correct data format, including 'doctor' as many-to-many field
+        serializer = MedNewsSerializer(data=data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+class ListMedNews(generics.ListAPIView):
     queryset = MedNews.objects.all()
     serializer_class = MedNewsSerializer
 

@@ -66,7 +66,7 @@ class MedNews(models.Model):
     headline = models.CharField(max_length=1500)
     news = models.CharField(max_length=1500)
     date = models.DateField(auto_now=True)
-    doctor = models.ManyToManyField(DoctorModel)
+    doctor = models.CharField(max_length=150)
     image = models.CharField(max_length=1500)
 
     def __str__(self):

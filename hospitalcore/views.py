@@ -172,6 +172,43 @@ class DoctorList(generics.ListCreateAPIView):
     queryset = DoctorModel.objects.all()
     serializer_class = DoctorSerializer
 
+    def post(self, request, *args, **kwargs):
+        print("Incoming request data:", request.data)
+
+        # Safely copy request data
+        try:
+            data = request.data.copy()
+            #data['doc_id'] = generate_e_hosp_id()
+        except Exception as e:
+            return Response({'error': f'Failed to generate doctor ID: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Validate profile image
+        image = request.FILES.get('profile')
+        if not image:
+            return Response({'error': 'Profile image is required'}, status=status.HTTP_400_BAD_REQUEST)
+        elif not image.name.lower().endswith(('png', 'jpg', 'jpeg')):
+            return Response({'error': 'Invalid image format. Only PNG, JPG, and JPEG are allowed.'}, status=status.HTTP_400_BAD_REQUEST)
+        elif image.size > 5 * 1024 * 1024:  # Limit to 5MB
+            return Response({'error': 'Profile image size exceeds 5MB limit.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Process and upload the profile image
+        try:
+            image_url = get_url(image)
+            data['profile'] = image_url
+        except Exception as e:
+            return Response({'error': f'Image processing failed: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Serialize and save the data
+        serializer = self.get_serializer(data=data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        # Debug serializer errors
+        print("Serializer errors:", serializer.errors)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class ListDoctor(generics.ListAPIView):
     queryset = DoctorModel.objects.all()
     serializer_class = DoctorSerializer
@@ -216,33 +253,26 @@ from collections import defaultdict
 class MedNewsList(generics.ListCreateAPIView):
     queryset = MedNews.objects.all()
     serializer_class = MedNewsSerializer
-
+    
     def post(self, request, *args, **kwargs):
-        # Create a dictionary for non-file fields
-        data = {key: value[0] for key, value in request.data.items() if key != 'image'}
-        print("Non-file Data:", data)  # Debugging: Check the non-file data
-
-        # Retrieve the uploaded image from request.FILES
-        image = request.FILES.get('image')
-        print("Image:", image)  # Debugging: Check if the image is being retrieved
-
-        if image:
-            # Process the image URL if needed (e.g., upload to Cloudinary)
-            image_url = get_url(image)  # Assuming get_url is a function to process the image
-            data['image'] = image_url  # Add the image URL to the data dictionary
-            print("Updated Data with Image:", data)  # Debugging: Check the final data
-
-        # Create the MedNews instance using the data
-        # Make sure to call `create` with the correct data format, including 'doctor' as many-to-many field
-        serializer = MedNewsSerializer(data=data)
+        data = {key: value for key, value in request.data.items() if key != 'image'}
         
+        image = request.FILES.get('image')
+        if not image:
+            return Response({'error': 'Image is required'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            image_url = get_url(image)
+            data['image'] = image_url
+        except Exception as e:
+            return Response({'error': f'Image processing failed: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = MedNewsSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
+            
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ListMedNews(generics.ListAPIView):
@@ -319,3 +349,4 @@ class CreatePrescription(generics.CreateAPIView):
 class ListPrescription(generics.ListAPIView):
     queryset = Prescription.objects.all()
     serializer_class = PrescriptionSerializer
+

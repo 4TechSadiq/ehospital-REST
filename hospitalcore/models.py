@@ -147,3 +147,14 @@ class Prescription(models.Model):
 
     def __str__(self):
         return f"Prescription for {self.patient}"
+
+
+class Hospital(models.Model):
+    name = models.CharField(max_length=100)
+    services = models.CharField(max_length=500)
+    address = models.CharField(max_length=500)
+    contact = models.CharField(max_length=25)
+    location = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name

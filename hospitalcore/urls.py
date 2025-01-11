@@ -4,8 +4,9 @@ from . import views
 urlpatterns = [
     path("create-user/", views.UserList.as_view(), name="create-user"),
     path("list-user", views.ListUsers.as_view(), name="list-user"),
-    path("user/<int:pk>", views.UserDetail.as_view(), name="user-detail"),
-    path("delete-user/<int:pk>", views.DeleteUser.as_view(), name="delete-user"),
+    path("user/<int:user_id>", views.ListSingleUser.as_view(), name="single"),
+    path("update-user/<int:pk>/", views.UserDetail.as_view(), name="user-detail"),
+    path("delete-user/<int:pk>/", views.DeleteUser.as_view(), name="delete-user"),
     path('login-user/', views.LoginUser.as_view(), name='login-user'),   
     path("create-doctor", views.DoctorList.as_view(), name="create-doctor"),
     path("list-doctor", views.ListDoctor.as_view(), name="list-doctor"),
@@ -30,4 +31,15 @@ urlpatterns = [
     path("list-medicine", views.ListMedicine.as_view(), name="list-medicine"),
     path("create-prescription", views.CreatePrescription.as_view(), name="create-prescription"),
     path("list-prescription", views.ListPrescription.as_view(), name="list-prescription"),
+    path("create-hospital", views.CreateHospital.as_view(), name="create-hospital"),
+    path("list-hospital", views.ListHospital.as_view(), name="list-hospital"),
+    path("update-hospital/<int:pk>", views.UpdateHospital.as_view(), name="update-hospital"),
+    path("delete-hospital/<int:pk>", views.DeleteHospital.as_view(), name="delete-hospital"),
+    path("update-appointment/<int:pk>/", views.UpdateAppointment.as_view(), name="update-appointment"),
+    path("delete-appointment/<int:pk>/", views.DeleteAppointment.as_view(), name="delete-appointment"),
+    path("update-doctor/<int:pk>/", views.UpdateDoctor.as_view(), name="update-doctor"),
+    path("delete-doctor/<int:pk>/", views.DeleteDoctor.as_view(), name="delete-doctor"),
+    path("approved-appointment/", views.ApprovedAppointment.as_view(), name="approve-appointment"),
+    path("list-approved-appointment/", views.ListApprovedAppointment.as_view(), name="list-approved-appointment"),
+
 ]

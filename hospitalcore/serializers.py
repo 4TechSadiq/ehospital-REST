@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import UserModel, DoctorModel, HeathStatus, MedNews, Appointment, MedRecord, Prescription, MedicalHistory, TreatmentHistory, MedNews, MedRecord, MedicalCondition, Medicine
+from .models import UserModel, DoctorModel, HeathStatus, MedNews, Appointment, MedRecord, Prescription, MedicalHistory, TreatmentHistory, MedNews, MedRecord, MedicalCondition, Medicine, Hospital, ApprovedAppointments
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -66,3 +66,13 @@ class MedicineSerializer(serializers.ModelSerializer):
         model = Medicine
         fields = '__all__'
 
+class HospitalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hospital
+        fields = '__all__'
+
+
+class ApprovedAppointmentsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApprovedAppointments
+        fields = '__all__'

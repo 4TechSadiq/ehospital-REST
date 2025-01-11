@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
-from .models import UserModel, DoctorModel, HeathStatus, MedNews, Appointment, MedRecord, Prescription, MedicalHistory, TreatmentHistory, MedicalCondition,Medicine
-from .serializers import UserSerializer, DoctorSerializer, HeathStatusSerializer, MedNewsSerializer, AppointmentSerializer, MedRecordSerializer, PrescriptionSerializer, MedHistorySerializer, TreatmentHistorySerializer, MedicalConditionSerializer,MedicineSerializer
+from .models import UserModel, DoctorModel, HeathStatus, MedNews, Appointment, MedRecord, Prescription, MedicalHistory, TreatmentHistory, MedicalCondition,Medicine, Hospital, ApprovedAppointments
+from .serializers import UserSerializer, DoctorSerializer, HeathStatusSerializer, MedNewsSerializer, AppointmentSerializer, MedRecordSerializer, PrescriptionSerializer, MedHistorySerializer, TreatmentHistorySerializer, MedicalConditionSerializer,MedicineSerializer, HospitalSerializer, ApprovedAppointmentsSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -12,6 +12,7 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import math as Math
+from rest_framework.parsers import MultiPartParser, FormParser
 
 # Make sure to set your Stripe secret key
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -94,6 +95,14 @@ class AppointmentView(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+class UpdateAppointment(generics.UpdateAPIView):
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
+
+class DeleteAppointment(generics.DestroyAPIView):
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
+
 
 # User Views
 class UserList(generics.ListCreateAPIView):
@@ -154,7 +163,7 @@ class LoginUser(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-class UserDetail(generics.RetrieveUpdateDestroyAPIView):
+class UserDetail(generics.UpdateAPIView):
     queryset = UserModel.objects.all()
     serializer_class = UserSerializer
 
@@ -166,6 +175,17 @@ class DeleteUser(generics.DestroyAPIView):
     queryset = UserModel.objects.all()
     serializer_class = UserSerializer
 
+
+from rest_framework.exceptions import NotFound
+class ListSingleUser(generics.ListAPIView):
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        user_id = self.kwargs.get('user_id')  # Get 'user_id' from URL
+        queryset = UserModel.objects.filter(id=user_id)
+        if not queryset.exists():
+            raise NotFound({"error": "User not found."})
+        return queryset
 
 # Doctor Views
 class DoctorList(generics.ListCreateAPIView):
@@ -214,6 +234,90 @@ class ListDoctor(generics.ListAPIView):
     serializer_class = DoctorSerializer
 
 class DoctorDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = DoctorModel.objects.all()
+    serializer_class = DoctorSerializer
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+class UpdateDoctor(generics.UpdateAPIView):
+    queryset = DoctorModel.objects.all()
+    serializer_class = DoctorSerializer
+    parser_classes = (MultiPartParser, FormParser)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        
+        # Log incoming data for debugging
+        logger.debug(f"Update request data: {request.data}")
+        
+        # Create a mutable copy of the data
+        mutable_data = request.data.copy()
+        
+        # Handle password separately if needed
+        password = mutable_data.pop('password', None)
+        if password:
+            logger.debug("Password field found in request")
+        
+        # Handle file upload
+        if 'profile' in request.FILES:
+            mutable_data['profile'] = request.FILES['profile']
+            url = get_url(mutable_data['profile'])
+            mutable_data['profile'] = url
+        elif 'profile' in mutable_data and not mutable_data['profile']:
+            # If profile field is empty string, remove it to prevent validation error
+            mutable_data.pop('profile')
+        
+        # Convert price to float if present
+        if 'price' in mutable_data:
+            try:
+                if mutable_data['price']:
+                    mutable_data['price'] = float(mutable_data['price'])
+            except (ValueError, TypeError):
+                return Response(
+                    {'detail': 'Invalid price format'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        
+        serializer = self.get_serializer(
+            instance, 
+            data=mutable_data, 
+            partial=True  # Always use partial=True for updates
+        )
+        
+        try:
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            
+            # Update password if provided
+            if password:
+                instance.password = password  # Assuming you have proper password handling
+                instance.save()
+            
+            return Response(serializer.data)
+            
+        except Exception as e:
+            logger.error(f"Update error: {str(e)}")
+            logger.error(f"Serializer errors: {serializer.errors if hasattr(serializer, 'errors') else 'No serializer errors'}")
+            
+            return Response(
+                {
+                    'detail': str(e),
+                    'fields': serializer.errors if hasattr(serializer, 'errors') else {}
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    def perform_update(self, serializer):
+        try:
+            serializer.save()
+        except Exception as e:
+            logger.error(f"Error in perform_update: {str(e)}")
+            raise
+       
+class DeleteDoctor(generics.DestroyAPIView):
     queryset = DoctorModel.objects.all()
     serializer_class = DoctorSerializer
 
@@ -350,3 +454,26 @@ class ListPrescription(generics.ListAPIView):
     queryset = Prescription.objects.all()
     serializer_class = PrescriptionSerializer
 
+class CreateHospital(generics.CreateAPIView):
+    queryset = Hospital.objects.all()
+    serializer_class = HospitalSerializer
+
+class ListHospital(generics.ListAPIView):
+    queryset = Hospital.objects.all()
+    serializer_class = HospitalSerializer
+
+class UpdateHospital(generics.UpdateAPIView):
+    queryset = Hospital.objects.all()
+    serializer_class = HospitalSerializer
+
+class DeleteHospital(generics.DestroyAPIView):
+    queryset = Hospital.objects.all()
+    serializer_class = HospitalSerializer
+
+class ApprovedAppointment(generics.CreateAPIView):
+    queryset = ApprovedAppointments.objects.all()
+    serializer_class = AppointmentSerializer
+
+class ListApprovedAppointment(generics.ListAPIView):
+    queryset = ApprovedAppointments.objects.all()
+    serializer_class = ApprovedAppointmentsSerializer

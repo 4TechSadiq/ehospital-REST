@@ -158,3 +158,22 @@ class Hospital(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+class ApprovedAppointments(models.Model):
+    ap_id = models.CharField(max_length=20)
+    user_id = models.CharField(max_length=50, null=True)
+    doc_id = models.CharField(max_length=50, null=True)
+    date = models.DateField(auto_now=True)
+    email = models.EmailField(null=True)
+    disease = models.CharField(max_length=150)
+    description = models.CharField(max_length=1500)
+    first_name = models.CharField(max_length=150)
+    last_name = models.CharField(max_length=150)
+    mid_name = models.CharField(max_length=150)
+    phone = models.CharField(max_length=13)
+    payment_intent_id = models.CharField(max_length=100, null=True)
+    payment_status = models.CharField(max_length=50, null=True)
+
+    def __str__(self):
+        return self.ap_id

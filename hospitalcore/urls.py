@@ -41,5 +41,8 @@ urlpatterns = [
     path("delete-doctor/<int:pk>/", views.DeleteDoctor.as_view(), name="delete-doctor"),
     path("approved-appointment/", views.ApprovedAppointment.as_view(), name="approve-appointment"),
     path("list-approved-appointment/", views.ListApprovedAppointment.as_view(), name="list-approved-appointment"),
-
+    path("create-notification/", views.CreateNotification.as_view(), name="create-notification"),
+    path("list-notification/", views.ListNotification.as_view(), name="list-notification"),
+    path("update-notification/<int:pk>/", views.UpdateNotification.as_view(), name="update-notification"),
+    path("recieve-data", views.RecieveData.as_view(), name="recieve-data"),
 ]

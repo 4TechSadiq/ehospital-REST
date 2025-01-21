@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
-from .models import UserModel, DoctorModel, HeathStatus, MedNews, Appointment, MedRecord, Prescription, MedicalHistory, TreatmentHistory, MedicalCondition,Medicine, Hospital, ApprovedAppointments
-from .serializers import UserSerializer, DoctorSerializer, HeathStatusSerializer, MedNewsSerializer, AppointmentSerializer, MedRecordSerializer, PrescriptionSerializer, MedHistorySerializer, TreatmentHistorySerializer, MedicalConditionSerializer,MedicineSerializer, HospitalSerializer, ApprovedAppointmentsSerializer
+from .models import UserModel, DoctorModel, HeathStatus, MedNews, Appointment, MedRecord, Prescription, MedicalHistory, TreatmentHistory, MedicalCondition,Medicine, Hospital, ApprovedAppointments, Notification
+from .serializers import UserSerializer, DoctorSerializer, HeathStatusSerializer, MedNewsSerializer, AppointmentSerializer, MedRecordSerializer, PrescriptionSerializer, MedHistorySerializer, TreatmentHistorySerializer, MedicalConditionSerializer,MedicineSerializer, HospitalSerializer, ApprovedAppointmentsSerializer, NotificationSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -13,6 +13,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import math as Math
 from rest_framework.parsers import MultiPartParser, FormParser
+from .modules.MedicalInvoice import generate_medical_invoice
+from .modules.SendMail import send_invoice_email
 
 # Make sure to set your Stripe secret key
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -118,6 +120,7 @@ class UserList(generics.ListCreateAPIView):
         # Handle profile upload
         if 'profile' in request.FILES:
             profile_file = request.FILES['profile']
+            print(profile_file)
             data['profile'] = get_url(profile_file)  # Upload the file and get its URL
         else:
             print("No profile file found in request.FILES")
@@ -477,3 +480,32 @@ class ApprovedAppointment(generics.CreateAPIView):
 class ListApprovedAppointment(generics.ListAPIView):
     queryset = ApprovedAppointments.objects.all()
     serializer_class = ApprovedAppointmentsSerializer
+
+class CreateNotification(generics.CreateAPIView):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        print("Incoming request data:", data)
+        serializer = self.get_serializer(data=data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ListNotification(generics.ListAPIView):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
+
+class UpdateNotification(generics.UpdateAPIView):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
+
+class RecieveData(APIView):
+    def post(self, request):
+        print("Received data:", request.data)
+        invoice = generate_medical_invoice(request.data)
+        print("Generated invoice:", invoice)
+        mail = send_invoice_email(pdf_buffer=invoice[1], recipient_email=request.data['userData']['email'], subject='Medical Invoice', body='Please find the attached medical invoice.',sender_email="sadiqcp2023@gmail.com", sender_password="uajknfahhmfhisri")
+        return Response(request.data)

@@ -177,3 +177,51 @@ class ApprovedAppointments(models.Model):
 
     def __str__(self):
         return self.ap_id
+    
+
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+import random
+
+class Notification(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('cancelled', 'Cancelled')
+    ]
+
+    prescription = models.ForeignKey(UserModel, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    payment_id = models.CharField(max_length=100, null=True, blank=True)
+
+    def calculate_price(self):
+        # Base price for each medicine (random 2-3 digit number)
+        medicine_count = self.prescription.medicines.count()
+        base_price = random.randint(50, 999)  # Random base price between $50 and $999
+        
+        # Price calculation based on number of medicines and times per day
+        total_price = (base_price * medicine_count * self.prescription.times_per_day) / 2
+        return round(total_price, 2)
+
+    def save(self, *args, **kwargs):
+        if not self.price:
+            self.price = self.calculate_price()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Notification for {self.prescription.patient} - ${self.price}"
+
+    class Meta:
+        ordering = ['-created_at']
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+@receiver(post_save, sender='hospitalcore.Prescription')  # Include the app label
+def create_notification(sender, instance, created, **kwargs):
+    if created:
+        Notification.objects.create(prescription=instance)

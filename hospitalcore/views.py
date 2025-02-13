@@ -507,5 +507,5 @@ class RecieveData(APIView):
         print("Received data:", request.data)
         invoice = generate_medical_invoice(request.data)
         print("Generated invoice:", invoice)
-        mail = send_invoice_email(pdf_buffer=invoice[1], recipient_email=request.data['userData']['email'], subject='Medical Invoice', body='Please find the attached medical invoice.',sender_email="sadiqcp2023@gmail.com", sender_password="uajknfahhmfhisri")
+        mail = send_invoice_email(pdf_buffer=invoice[1], recipient_email=request.data['userData']['email'], subject='Medical Invoice', body='Please find the attached medical invoice.',sender_email="", sender_password="")
         return Response(request.data)

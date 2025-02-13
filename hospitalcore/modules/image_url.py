@@ -6,9 +6,9 @@ import os
 
 #Config Cloudinary
 cloudinary.config(
-    cloud_name = 'dmdkjavlp', #Cloudinary Library
-    api_key = '627292566488957', #Cloudinary API KEY
-    api_secret = 'xvbg9Xic_AT0FWvbIr4cN63kL8A', # API Secret Key
+    cloud_name = '', #Cloudinary Library
+    api_key = '', #Cloudinary API KEY
+    api_secret = '', # API Secret Key
     secure = True # Set True
 )
 
